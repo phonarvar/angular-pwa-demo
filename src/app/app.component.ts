@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { NetworkServiceService } from './services/network-service.service';
 import { CommonModule } from '@angular/common';
+import { ViewChild } from '@angular/core';
+import { ToastComponent } from './components/toast/toast.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule],
+  imports: [CommonModule, ToastComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
   title = 'angular-pwa-demo';
+  @ViewChild('toast') toast!: ToastComponent;
 
   deferredPrompt: any = null; // stores install event
   canInstall = false; // whether to show install button
@@ -25,7 +28,9 @@ export class AppComponent implements OnInit {
 
     // log when app is installed
     window.addEventListener('appinstalled', () => {
-      console.log('PWA installed successfully!');
+      if (this.toast) {
+        this.toast.show('🎉 PWA installed successfully!', 'success');
+      }
     });
   }
 
@@ -33,6 +38,13 @@ export class AppComponent implements OnInit {
     // Subscribe to the network status observable
     this.network.online.subscribe((status: boolean) => {
       this.online = status;
+
+      // Show toast
+      if (status) {
+        this.toast.show('✅ You are Online', 'success');
+      } else {
+        this.toast.show('⚠️ You are Offline', 'error');
+      }
     });
   }
 
