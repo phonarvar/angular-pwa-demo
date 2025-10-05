@@ -1,0 +1,54 @@
+/* Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #1976d2;
+  color: white;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  button {
+    background: white;
+    color: #1976d2;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background: #f1f1f1;
+    }
+  }
+}
+
+/* Status banner */
+.status-banner {
+  text-align: center;
+  padding: 0.5rem;
+  font-weight: bold;
+
+  &.online {
+    background-color: #4caf50; // green
+    color: white;
+  }
+
+  &.offline {
+    background-color: #f44336; // red
+    color: white;
+  }
+}
+
+/* Content area */
+.content {
+  padding: 2rem;
+  text-align: center;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
