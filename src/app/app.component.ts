@@ -28,7 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.deferredPrompt = event as any; // store the event
       this.canInstall = true; // show install button
     };
-    
+
     window.addEventListener('beforeinstallprompt', this.beforeInstallPromptListener);
 
     // Log when app is installed
@@ -37,6 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.toast.show('🎉 PWA installed successfully!', 'success');
       }
     };
+    
     window.addEventListener('appinstalled', this.appInstalledListener);
   }
 
