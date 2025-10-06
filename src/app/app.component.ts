@@ -11,11 +11,11 @@ import { Subscription } from 'rxjs';
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit, OnDestroy {
-  title = 'angular-pwa-demo';
-  @ViewChild('toast') toast!: ToastComponent;
+  readonly title = 'angular-pwa-demo';
+  @ViewChild('toast', { static: true }) toast!: ToastComponent; 
 
-  private networkSub!: Subscription;
-  deferredPrompt: any | null = null; // stores install event
+  private networkSubscription!: Subscription;
+  private deferredPrompt: any | any  = null; // stores install event
   canInstall = false; // whether to show install button
   online = false; // initial online status
 
@@ -37,7 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Subscribe to the network status observable
-    this.networkSub = this.networkService.online.subscribe(
+    this.networkSubscription = this.networkService.online.subscribe(
       (status: boolean) => {
         this.online = status;
 
@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.networkSub?.unsubscribe();
+    this.networkSubscription?.unsubscribe();
   }
 
   installApp() {
