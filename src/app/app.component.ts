@@ -15,21 +15,22 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('toast', { static: true }) private toast!: ToastComponent;
 
   private networkSubscription!: Subscription;
-  private deferredPrompt: any | any = null; // stores install event
+  private deferredPrompt: any = null; // stores install event
   canInstall = false; // whether to show install button
   online = false; // initial online status
   private beforeInstallPromptListener: (e: Event) => void = () => {}; // For cleanup
   private appInstalledListener: () => void = () => {}; // For cleanup
 
-  constructor(private readonly networkService: NetworkServiceService) {
+  constructor(private readonly networkService: NetworkServiceService) {}
+
+  ngOnInit(): void {
     // Listen for install prompt
     this.beforeInstallPromptListener = (event: Event) => {
-      event.preventDefault(); // prevent default mini-infobar so we can trigger it with a button
-      this.deferredPrompt = event as any; // store the event
-      this.canInstall = true; // show install button
+      event.preventDefault();
+      this.deferredPrompt = event as any;
+      this.canInstall = true;
     };
-
-    window.addEventListener('beforeinstallprompt', this.beforeInstallPromptListener);
+    window.addEventListener('beforeinstallprompt',this.beforeInstallPromptListener);
 
     // Show toast when PWA is installed
     this.appInstalledListener = () => {
@@ -37,17 +38,12 @@ export class AppComponent implements OnInit, OnDestroy {
         this.toast.show('🎉 PWA installed successfully!', 'success');
       }
     };
-    
     window.addEventListener('appinstalled', this.appInstalledListener);
-  }
 
-  ngOnInit(): void {
-    // Subscribe to the network status observable
+    // Subscribe to network status observable
     this.networkSubscription = this.networkService.online.subscribe(
       (status: boolean) => {
         this.online = status;
-
-        // Show toast
         if (status) {
           this.toast?.show('✅ You are Online', 'success');
         } else {
@@ -59,7 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.networkSubscription?.unsubscribe();
-    window.removeEventListener('beforeinstallprompt', this.beforeInstallPromptListener);
+    window.removeEventListener('beforeinstallprompt',this.beforeInstallPromptListener);
     window.removeEventListener('appinstalled', this.appInstalledListener);
   }
 
