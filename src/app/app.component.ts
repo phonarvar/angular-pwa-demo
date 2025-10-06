@@ -31,7 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     window.addEventListener('beforeinstallprompt', this.beforeInstallPromptListener);
 
-    // Log when app is installed
+    // Show toast when PWA is installed
     this.appInstalledListener = () => {
       if (this.toast) {
         this.toast.show('🎉 PWA installed successfully!', 'success');
