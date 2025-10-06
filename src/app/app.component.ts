@@ -12,27 +12,32 @@ import { Subscription } from 'rxjs';
 })
 export class AppComponent implements OnInit, OnDestroy {
   readonly title = 'angular-pwa-demo';
-  @ViewChild('toast', { static: true }) toast!: ToastComponent; 
+  @ViewChild('toast', { static: true }) private toast!: ToastComponent;
 
   private networkSubscription!: Subscription;
-  private deferredPrompt: any | any  = null; // stores install event
+  private deferredPrompt: any | any = null; // stores install event
   canInstall = false; // whether to show install button
   online = false; // initial online status
+  private beforeInstallPromptListener: (e: Event) => void = () => {}; // For cleanup
+  private appInstalledListener: () => void = () => {}; // For cleanup
 
   constructor(private readonly networkService: NetworkServiceService) {
-    // listen for install prompt
-    window.addEventListener('beforeinstallprompt', (event: Event) => {
+    // Listen for install prompt
+    this.beforeInstallPromptListener = (event: Event) => {
       event.preventDefault(); // prevent default mini-infobar so we can trigger it with a button
-      this.deferredPrompt = event; // store the event
+      this.deferredPrompt = event as any; // store the event
       this.canInstall = true; // show install button
-    });
+    };
+    
+    window.addEventListener('beforeinstallprompt', this.beforeInstallPromptListener);
 
-    // log when app is installed
-    window.addEventListener('appinstalled', () => {
+    // Log when app is installed
+    this.appInstalledListener = () => {
       if (this.toast) {
         this.toast.show('🎉 PWA installed successfully!', 'success');
       }
-    });
+    };
+    window.addEventListener('appinstalled', this.appInstalledListener);
   }
 
   ngOnInit(): void {
@@ -53,6 +58,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.networkSubscription?.unsubscribe();
+    window.removeEventListener('beforeinstallprompt', this.beforeInstallPromptListener);
+    window.removeEventListener('appinstalled', this.appInstalledListener);
   }
 
   installApp() {
