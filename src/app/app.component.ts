@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NetworkServiceService } from './services/network-service.service';
 import { CommonModule } from '@angular/common';
-import { ViewChild } from '@angular/core';
 import { ToastComponent } from './components/toast/toast.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -10,20 +10,21 @@ import { ToastComponent } from './components/toast/toast.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'angular-pwa-demo';
   @ViewChild('toast') toast!: ToastComponent;
 
-  deferredPrompt: any = null; // stores install event
+  private networkSub!: Subscription;
+  deferredPrompt: any | null = null; // stores install event
   canInstall = false; // whether to show install button
   online = false; // initial online status
 
-  constructor(private network: NetworkServiceService) {
+  constructor(private readonly networkService: NetworkServiceService) {
     // listen for install prompt
     window.addEventListener('beforeinstallprompt', (event: Event) => {
       event.preventDefault(); // prevent default mini-infobar so we can trigger it with a button
       this.deferredPrompt = event; // store the event
-      this.canInstall = true; // show button
+      this.canInstall = true; // show install button
     });
 
     // log when app is installed
@@ -36,16 +37,22 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     // Subscribe to the network status observable
-    this.network.online.subscribe((status: boolean) => {
-      this.online = status;
+    this.networkSub = this.networkService.online.subscribe(
+      (status: boolean) => {
+        this.online = status;
 
-      // Show toast
-      if (status) {
-        this.toast.show('✅ You are Online', 'success');
-      } else {
-        this.toast.show('⚠️ You are Offline', 'error');
+        // Show toast
+        if (status) {
+          this.toast?.show('✅ You are Online', 'success');
+        } else {
+          this.toast?.show('⚠️ You are Offline', 'error');
+        }
       }
-    });
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.networkSub?.unsubscribe();
   }
 
   installApp() {
